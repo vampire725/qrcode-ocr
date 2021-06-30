@@ -7,27 +7,26 @@
 """
 import io
 import pytesseract
-
-from flask import Flask, jsonify
-from flask import request
+import uvicorn
+from fastapi import FastAPI
 from pyzbar.pyzbar import decode, ZBarSymbol
 from PIL import Image
 from loguru import logger
+from starlette.requests import Request
 
 from app.log_set import set_logger
 
 set_logger()
 log = logger
 
-app = Flask(__name__)
+app = FastAPI()
 
 
-@app.route("/api/v1/qrcode", methods=["POST"])
-def qrcode():
+@app.post("/api/v1/qrcode", name="二维码识别")
+async def qrcode(request: Request) -> dict:
+    body = await request.body()
     try:
-        ds = decode(
-            Image.open(io.BytesIO(request.get_data())), symbols=[ZBarSymbol.QRCODE]
-        )
+        ds = decode(Image.open(io.BytesIO(body)), symbols=[ZBarSymbol.QRCODE])
         url = str(ds[0].data, encoding="utf-8") if len(ds) > 0 else ""
 
     except Exception as e:
@@ -37,24 +36,22 @@ def qrcode():
     return {"url": url}
 
 
-@app.route("/api/v1/ocr", methods=["POST"])
-def orc():
+@app.post("/api/v1/ocr", name="图片识别")
+async def orc(request: Request) -> dict:
+    body = await request.body()
     try:
-        text = pytesseract.image_to_string(Image.open(io.BytesIO(request.get_data())))
+        text = pytesseract.image_to_string(Image.open(io.BytesIO(body)), lang="chi_sim")
+        text = text.replace("\n", ",").replace(" ", "")
     except Exception as e:
         log.error(e)
         text = ""
     return {"text": text}
 
 
-@app.route("/health", methods=["POST", "GET"])
-def health_check():
+@app.get("/health", name="健康检查")
+async def health_check() -> str:
     return "ok"
 
 
 if __name__ == "__main__":
-    app.run(
-        host="0.0.0.0",
-        port=8080,
-        debug=False,
-    )
+    uvicorn.run("app.start:app", host="0.0.0.0", port=8080, reload=True)

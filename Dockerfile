@@ -1,11 +1,15 @@
 # [production]
-FROM 192.168.129.112:10001/zkr-env-python:3.8-buster
+FROM python:3.9.6-buster
+
+RUN echo >/etc/apt/sources.list "\n\
+deb https://mirrors.tuna.tsinghua.edu.cn/debian/ buster main contrib non-free\n\
+deb https://mirrors.tuna.tsinghua.edu.cn/debian/ buster-updates main contrib non-free\n\
+deb https://mirrors.tuna.tsinghua.edu.cn/debian/ buster-backports main contrib non-free\n\
+deb https://mirrors.tuna.tsinghua.edu.cn/debian-security buster/updates main contrib non-free\n\
+" && \
+apt update && apt install -y sudo vim openssh-server openssh-client libzbar-dev libtesseract-dev tesseract-ocr tesseract-ocr-eng tesseract-ocr-chi-sim
 
 COPY requirements.txt .
-RUN apt install libzbar-dev
-#sudo apt update
-#sudo apt install tesseract-ocr
-#sudo apt install libtesseract-dev
 RUN pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple &&\
     pip install --upgrade pip &&\
     pip install --default-timeout=100 -i https://pypi.tuna.tsinghua.edu.cn/simple -r requirements.txt
