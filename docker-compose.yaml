@@ -1,0 +1,13 @@
+version: '3.5'  # networks.x.name 需要 3.5
+services:
+  qrcodeOcr:
+    image: 192.168.31.103:5000/qrcode-ocr:1.0
+    restart: always
+    networks:
+      dash_webnet:
+    ports:
+      - 15000:8080
+networks:
+  dash_webnet:
+    external: true
+    name: ${DASH_WEBNET}

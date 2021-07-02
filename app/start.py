@@ -8,6 +8,7 @@
 import io
 import pytesseract
 import uvicorn
+
 from fastapi import FastAPI
 from pyzbar.pyzbar import decode, ZBarSymbol
 from PIL import Image
