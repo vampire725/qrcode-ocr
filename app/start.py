@@ -10,6 +10,7 @@ import pytesseract
 import uvicorn
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pyzbar.pyzbar import decode, ZBarSymbol
 from PIL import Image
 from loguru import logger
@@ -21,6 +22,15 @@ set_logger()
 log = logger
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[*],
+    allow_credentials=True,
+    allow_methods=[*],
+    allow_headers=[*],
+)
+print('允许跨域')
 
 
 @app.post("/api/v1/qrcode", name="二维码识别")
