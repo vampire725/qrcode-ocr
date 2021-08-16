@@ -7,6 +7,8 @@ services:
       dash_webnet:
     ports:
       - 15000:8080
+    volumes:
+      - ./:/usr/src/app/qrcode-ocr
 networks:
   dash_webnet:
     external: true
